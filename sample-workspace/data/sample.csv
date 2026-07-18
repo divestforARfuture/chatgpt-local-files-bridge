@@ -1,0 +1,4 @@
+name,status,notes
+Local Files Bridge,ready,Sample data for search and read tests
+Read-only mode,default,Write endpoints are blocked
+Read-write mode,opt-in,Requires typing ENABLE WRITE
