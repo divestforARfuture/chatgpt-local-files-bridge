@@ -1,0 +1,188 @@
+openapi: 3.0.3
+info:
+  title: ChatGPT Local Files Bridge
+  version: 0.1.0
+  description: Local-only access to one explicitly approved workspace.
+servers:
+  - url: http://localhost:9900
+paths:
+  /health:
+    get:
+      operationId: getBridgeHealth
+      summary: Check bridge status and mode
+      responses:
+        '200':
+          description: Bridge status
+          content:
+            application/json:
+              schema:
+                type: object
+  /list:
+    get:
+      operationId: listWorkspaceDirectory
+      summary: List a directory inside the workspace
+      parameters:
+        - $ref: '#/components/parameters/Path'
+      responses:
+        '200':
+          description: Directory entries
+          content:
+            application/json:
+              schema:
+                type: object
+  /stat:
+    get:
+      operationId: statWorkspacePath
+      summary: Get metadata for a workspace path
+      parameters:
+        - $ref: '#/components/parameters/RequiredPath'
+      responses:
+        '200':
+          description: Path metadata
+          content:
+            application/json:
+              schema:
+                type: object
+  /read:
+    get:
+      operationId: readWorkspaceFile
+      summary: Read or extract text from a file
+      parameters:
+        - $ref: '#/components/parameters/RequiredPath'
+        - name: start
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '200':
+          description: Extracted file text
+          content:
+            application/json:
+              schema:
+                type: object
+  /search:
+    get:
+      operationId: searchWorkspaceFiles
+      summary: Search file and directory names inside the workspace
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Path'
+        - name: max_results
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+  /mkdir:
+    post:
+      operationId: createWorkspaceDirectory
+      summary: Create a directory when write mode is enabled
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [path]
+              properties:
+                path:
+                  type: string
+      responses:
+        '201':
+          description: Created directory
+  /write:
+    post:
+      operationId: writeWorkspaceTextFile
+      summary: Create or overwrite a UTF-8 text file when write mode is enabled
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [path, content]
+              properties:
+                path:
+                  type: string
+                content:
+                  type: string
+                overwrite:
+                  type: boolean
+                  default: false
+      responses:
+        '200':
+          description: Written file metadata
+  /move:
+    post:
+      operationId: moveWorkspacePath
+      summary: Move or rename a path when write mode is enabled
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [source, destination]
+              properties:
+                source:
+                  type: string
+                destination:
+                  type: string
+                overwrite:
+                  type: boolean
+                  default: false
+      responses:
+        '200':
+          description: Destination metadata
+  /delete:
+    post:
+      operationId: deleteWorkspacePath
+      summary: Delete a path after backing it up when write mode is enabled
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [path]
+              properties:
+                path:
+                  type: string
+      responses:
+        '200':
+          description: Deletion and backup information
+components:
+  parameters:
+    Path:
+      name: path
+      in: query
+      required: false
+      description: Workspace-relative path. Empty means the workspace root.
+      schema:
+        type: string
+        default: ''
+    RequiredPath:
+      name: path
+      in: query
+      required: true
+      description: Workspace-relative path. Absolute paths and parent traversal are rejected.
+      schema:
+        type: string
