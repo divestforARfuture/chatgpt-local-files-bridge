@@ -1,0 +1,18 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Local Files Bridge",
+  "name_for_model": "local_files_bridge",
+  "description_for_human": "Read and optionally manage files inside one approved local workspace.",
+  "description_for_model": "Use this plugin only for files inside the configured workspace. Prefer read-only operations. Never claim access outside the workspace. Write, move, create, or delete only when the user explicitly requests it and write mode is enabled.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "http://localhost:9900/openapi.yaml",
+    "is_user_authenticated": false
+  },
+  "logo_url": "http://localhost:9900/icon.svg",
+  "contact_email": "support@example.invalid",
+  "legal_info_url": "https://github.com/divestforARfuture/chatgpt-local-files-bridge/blob/main/LICENSE"
+}
